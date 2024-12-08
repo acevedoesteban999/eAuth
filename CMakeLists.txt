@@ -1,0 +1,9 @@
+idf_component_register(
+    SRCS 
+        "eAuth.c"
+    INCLUDE_DIRS 
+        "include"
+    REQUIRES
+        eWeb
+        eStore
+)
