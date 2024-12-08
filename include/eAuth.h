@@ -12,7 +12,7 @@
 #define PASSWORD_LEN 20         // Longitud máxima para contraseñas
 #define TOKEN_LEN 64            // Longitud máxima para tokens de sesión
 #define MAX_404_BUFFER_SIZE 20  
-#define BUFF_LEN 100
+
 
 // Estructura para almacenar información de un usuario
 typedef struct {
@@ -25,9 +25,8 @@ typedef struct {
 extern User users[MAX_USERS];         // Declaración del array de usuarios
 extern unsigned int count_users;      // Declaración del contador de usuarios
 
-const char* _login_asm_start = NULL;
-const char* _login_asm_end = NULL;
-char redirect_404[MAX_404_BUFFER_SIZE];
+
+
 
 // Inicializa los usuarios
 void init_auth(void);
@@ -50,3 +49,5 @@ User* get_user_by_session_token(const char *session_token);
 bool logout_user(const char *session_token);
 
 void set_auth_uri_handlers(const char*__login_asm_start,const char*__login_asm_end,const char*__redirect_404);
+
+esp_err_t static_auth_handler(httpd_req_t *req);

@@ -3,6 +3,9 @@
 
 User users[MAX_USERS];         // Declaración del array de usuarios
 unsigned int count_users=0;
+char redirect_404[MAX_404_BUFFER_SIZE];
+const char* _login_asm_start = NULL;
+const char* _login_asm_end = NULL;
 
 // Inicializa los usuarios con un usuario predeterminado (admin)
 void init_auth() {
@@ -87,7 +90,7 @@ esp_err_t login_handler(httpd_req_t *req)
 
 // Login (POST)
 esp_err_t login_post_handler(httpd_req_t *req) {
-    char buff[BUFF_LEN];
+    char buff[BUFF_HTTP_RECV_LEN];
     int ret = httpd_req_recv(req, buff, sizeof(buff) - 1);
     if (ret <= 0) {
         // Manejo de error
@@ -123,6 +126,23 @@ esp_err_t logout_handler(httpd_req_t *req) {
         httpd_resp_send(req, NULL, 0);
     }
     return ESP_OK;
+}
+
+// Static  (GET)
+esp_err_t static_auth_handler(httpd_req_t *req) {
+    if (isAuth(req)){
+
+        static_ctx_handler*ctx = (static_ctx_handler *)req->user_ctx;
+        httpd_resp_set_type(req, ctx->resp_type);
+        httpd_resp_set_hdr(req, "Cache-Control", "public, max-age=86400");
+        httpd_resp_send(req, ctx->asm_start, ctx->asm_end - ctx->asm_start );
+        return ESP_OK;
+    }
+    else{
+        httpd_resp_set_status(req, "401 Unauthorized");
+        return ESP_FAIL;
+    }
+    
 }
 
 // Error 404
