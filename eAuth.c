@@ -131,17 +131,18 @@ esp_err_t logout_handler(httpd_req_t *req) {
 // Static  (GET)
 esp_err_t static_auth_handler(httpd_req_t *req) {
     if (isAuth(req)){
-
         static_ctx_handler*ctx = (static_ctx_handler *)req->user_ctx;
         httpd_resp_set_type(req, ctx->resp_type);
         httpd_resp_set_hdr(req, "Cache-Control", "public, max-age=86400");
         httpd_resp_send(req, ctx->asm_start, ctx->asm_end - ctx->asm_start );
-        return ESP_OK;
     }
     else{
+
         httpd_resp_set_status(req, "401 Unauthorized");
-        return ESP_FAIL;
+        httpd_resp_set_hdr(req, "Content-Type", "text");
+        httpd_resp_send(req, "Unauthorized", HTTPD_RESP_USE_STRLEN);
     }
+    return ESP_OK;
     
 }
 
