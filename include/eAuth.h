@@ -12,7 +12,7 @@
 #define PASSWORD_LEN 20         // Longitud máxima para contraseñas
 #define TOKEN_LEN 64            // Longitud máxima para tokens de sesión
 #define MAX_404_BUFFER_SIZE 20  
-
+#define AUTH_MAX_URI_SIZE 3
 
 // Estructura para almacenar información de un usuario
 typedef struct {
