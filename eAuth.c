@@ -3,7 +3,7 @@
 
 User users[MAX_USERS];         // Declaración del array de usuarios
 unsigned int count_users=0;
-char redirect_404[MAX_404_BUFFER_SIZE];
+char redirect_302[MAX_404_BUFFER_SIZE];
 const char* _login_asm_start = NULL;
 const char* _login_asm_end = NULL;
 
@@ -150,21 +150,32 @@ esp_err_t static_auth_handler(httpd_req_t *req) {
 esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
 {
     httpd_resp_set_status(req, "302 Temporary Redirect");
-    httpd_resp_set_hdr(req, "Location", redirect_404);
+    httpd_resp_set_hdr(req, "Location", redirect_302);
     httpd_resp_send(req, "Redirect to the captive portal", HTTPD_RESP_USE_STRLEN);
 
-    ESP_LOGW("", "Redirecting to: %s",redirect_404);
+    ESP_LOGW("", "Redirecting to: %s",redirect_302);
     return ESP_OK;
 }
 
+
+void send_bad_url(httpd_req_t*req){
+    if(req->method == HTTP_GET){
+        httpd_resp_set_status(req, "302 Redirect");
+        httpd_resp_set_hdr(req, "Location", redirect_302);
+    }
+    else
+        httpd_resp_set_status(req, "402 Not Found");
+    httpd_resp_send(req, NULL, 0);
+}
+
 // Required char* to login start and end EMBED_FILE
-void set_auth_uri_handlers(const char*__login_asm_start,const char*__login_asm_end,const char*__redirect_404){
+void set_auth_uri_handlers(const char*__login_asm_start,const char*__login_asm_end,const char*__redirect_302){
     _login_asm_start = __login_asm_start;
     _login_asm_end = __login_asm_end;
-    if (strlen(__redirect_404) < MAX_404_BUFFER_SIZE)
-        strcpy(redirect_404,__redirect_404);
+    if (strlen(__redirect_302) < MAX_404_BUFFER_SIZE)
+        strcpy(redirect_302,__redirect_302);
     else
-        strcpy(redirect_404,"/login.html");
+        strcpy(redirect_302,"/login.html");
     httpd_uri_t uri;
     uri.uri = "/login.html";
     uri.method = HTTP_GET;
