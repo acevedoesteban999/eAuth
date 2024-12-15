@@ -13,6 +13,7 @@
 #define TOKEN_LEN 64            // Longitud máxima para tokens de sesión
 #define MAX_404_BUFFER_SIZE 20  
 #define AUTH_MAX_URI_SIZE 3
+#define MAX_STRING_REQUEST_LEN 20
 
 // Estructura para almacenar información de un usuario
 typedef struct {
@@ -48,9 +49,9 @@ User* get_user_by_session_token(const char *session_token);
 // Cierra sesión del usuario
 bool logout_user(const char *session_token);
 
-void send_bad_url(httpd_req_t*req);
+void redirect_to_login(httpd_req_t*req);
 
-void set_auth_uri_handlers(const char *__login_asm_start, const char *__login_asm_end, const char *__redirect_302);
+void set_auth_uri_handlers(const char *__login_asm_start, const char *__login_asm_end, const char *__redirect_404);
 
 esp_err_t static_html_auth_handler(httpd_req_t *req);
 
