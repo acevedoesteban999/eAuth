@@ -128,6 +128,22 @@ esp_err_t logout_handler(httpd_req_t *req) {
     return ESP_OK;
 }
 
+
+// HTML(GET)
+esp_err_t static_html_auth_handler(httpd_req_t *req) {
+    if (isAuth(req)){
+        static_ctx_handler*html = (static_ctx_handler *)req->user_ctx;
+        httpd_resp_set_type(req, "text/html");
+        httpd_resp_set_hdr(req, "Cache-Control", "public, max-age=86400");
+        httpd_resp_send(req, html->asm_start, html->asm_end - html->asm_start );
+    }
+    else{
+        send_bad_url(req);
+    }
+    return ESP_OK;
+    
+}
+
 // Static  (GET)
 esp_err_t static_auth_handler(httpd_req_t *req) {
     if (isAuth(req)){

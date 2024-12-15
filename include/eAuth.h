@@ -52,4 +52,6 @@ void send_bad_url(httpd_req_t*req);
 
 void set_auth_uri_handlers(const char *__login_asm_start, const char *__login_asm_end, const char *__redirect_302);
 
+esp_err_t static_html_auth_handler(httpd_req_t *req);
+
 esp_err_t static_auth_handler(httpd_req_t *req);
