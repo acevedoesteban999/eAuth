@@ -78,8 +78,6 @@ bool logout_user(const char *session_token) {
     return false; // Falló el cierre de sesión
 }
 
-
-
 // Login(GET)
 esp_err_t login_handler(httpd_req_t *req)
 {
@@ -132,7 +130,6 @@ esp_err_t logout_handler(httpd_req_t *req) {
     }
     return ESP_OK;
 }
-
 
 // STATIC HTML(GET)
 esp_err_t static_html_auth_handler(httpd_req_t *req) {
