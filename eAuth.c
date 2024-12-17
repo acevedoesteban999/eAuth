@@ -78,8 +78,6 @@ bool logout_user(const char *session_token) {
     return false; // Falló el cierre de sesión
 }
 
-
-
 // Login(GET)
 esp_err_t login_handler(httpd_req_t *req)
 {
@@ -90,29 +88,34 @@ esp_err_t login_handler(httpd_req_t *req)
 
 // Login (POST)
 esp_err_t login_post_handler(httpd_req_t *req) {
-    char buff[BUFF_HTTP_RECV_LEN];
-    int ret = httpd_req_recv(req, buff, sizeof(buff) - 1);
-    if (ret <= 0) {
-        // Manejo de error
+    char *buff = malloc(req->content_len + 1);
+    if (buff == NULL) {
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Request Body too long");
         return ESP_FAIL;
     }
-    buff[ret] = '\0'; 
 
-    // Extraer nombre de usuario y contraseña
-    char *username = strtok(buff, "&");
-    char *password = strtok(NULL, "&");
+    get_all_data_request(req,buff);
+
+    char username[MAX_STRING_REQUEST_LEN + 1],password[MAX_STRING_REQUEST_LEN + 1],uri_redirect[MAX_STRING_REQUEST_LEN + 1];
+    get_string_urlencoded_request(buff,"username",username,MAX_STRING_REQUEST_LEN);
+    get_string_urlencoded_request(buff,"password",password,MAX_STRING_REQUEST_LEN);
+    get_string_urlencoded_request(buff,"password",password,MAX_STRING_REQUEST_LEN);
+    get_string_urlencoded_request(req->uri,"uri",uri_redirect,MAX_STRING_REQUEST_LEN);
     
-    username = username + strlen("username="); // Saltar "username="
-    password = password + strlen("password="); // Saltar "password="
+
     
     if (authenticate_user(username, password)) {
         httpd_resp_set_hdr(req, "Set-Cookie", find_user_by_username(username)->session_token); // Establecer cookie
         httpd_resp_set_status(req, "302 Found");
-        httpd_resp_set_hdr(req, "Location", "/home");
+        if(strlen(uri_redirect))
+            httpd_resp_set_hdr(req, "Location", uri_redirect);
+        else
+            httpd_resp_set_hdr(req, "Location", redirect_404);
         httpd_resp_send(req, NULL, 0);
     } else {
         httpd_resp_send(req, "Authentication Failed", HTTPD_RESP_USE_STRLEN);
     }
+    free(buff);
     return ESP_OK;
 }
 
@@ -128,6 +131,19 @@ esp_err_t logout_handler(httpd_req_t *req) {
     return ESP_OK;
 }
 
+// STATIC HTML(GET)
+esp_err_t static_html_auth_handler(httpd_req_t *req) {
+    if (isAuth(req)){
+        static_ctx_handler*html = (static_ctx_handler *)req->user_ctx;
+        httpd_resp_set_type(req, "text/html");
+        httpd_resp_send(req, html->asm_start, html->asm_end - html->asm_start );
+    }
+    else
+        redirect_to_login(req);
+    return ESP_OK;
+    
+}
+
 // Static  (GET)
 esp_err_t static_auth_handler(httpd_req_t *req) {
     if (isAuth(req)){
@@ -137,7 +153,6 @@ esp_err_t static_auth_handler(httpd_req_t *req) {
         httpd_resp_send(req, ctx->asm_start, ctx->asm_end - ctx->asm_start );
     }
     else{
-
         httpd_resp_set_status(req, "401 Unauthorized");
         httpd_resp_set_hdr(req, "Content-Type", "text");
         httpd_resp_send(req, "Unauthorized", HTTPD_RESP_USE_STRLEN);
@@ -152,9 +167,22 @@ esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
     httpd_resp_set_status(req, "302 Temporary Redirect");
     httpd_resp_set_hdr(req, "Location", redirect_404);
     httpd_resp_send(req, "Redirect to the captive portal", HTTPD_RESP_USE_STRLEN);
-
-    ESP_LOGW("", "Redirecting to: %s",redirect_404);
     return ESP_OK;
+}
+
+void redirect_to_login(httpd_req_t*req){
+    if(req->method == HTTP_GET){
+        char redirect[strlen("/login.html") + strlen("?uri=") + strlen(req->uri) + 1];
+        httpd_resp_set_status(req, "302 Temporary Redirect");
+        strcpy(redirect,"/login.html?uri=");
+        strcat(redirect,req->uri);
+        httpd_resp_set_hdr(req, "Location", redirect);
+        httpd_resp_send(req, NULL, 0);              
+    }
+    else{
+        httpd_resp_set_status(req, "402 Not Found");
+        httpd_resp_send(req, NULL, 0);
+    }
 }
 
 // Required char* to login start and end EMBED_FILE
@@ -184,6 +212,5 @@ void set_auth_uri_handlers(const char*__login_asm_start,const char*__login_asm_e
     uri.user_ctx = NULL;
     httpd_register_uri_handler(WebServer, &uri);
 
-    
     httpd_register_err_handler(WebServer, HTTPD_404_NOT_FOUND, http_404_error_handler);
 }
