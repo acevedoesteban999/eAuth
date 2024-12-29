@@ -8,8 +8,8 @@ const char* _login_asm_start = NULL;
 const char* _login_asm_end = NULL;
 
 // Inicializa los usuarios con un usuario predeterminado (admin)
-void init_auth() {
-    //init_nvs();
+void eauth_init() {
+    //estore_init();
     // Inicializar usuario admin
     strcpy(users[0].username, "admin");
     strcpy(users[0].password, "admin");
@@ -18,11 +18,11 @@ void init_auth() {
     count_users = 1;                   // Solo tenemos un usuario inicial
 }
 
-bool isAuth(httpd_req_t *req)
+bool eauth_isAuth(httpd_req_t *req)
 {
     char session_token[TOKEN_LEN];
     httpd_req_get_hdr_value_str(req, "Cookie", session_token, TOKEN_LEN);
-    return (strlen(session_token) && get_user_by_session_token(session_token));
+    return (strlen(session_token) && eauth_get_user_by_session_token(session_token));
 }
 
 void save_user(){
@@ -30,16 +30,16 @@ void save_user(){
 }
 
 // Genera un token de sesión aleatorio
-void generate_session_token(char *token) {
+void eauth_generate_session_token(char *token) {
     // Generar un token aleatorio simple
     snprintf(token, TOKEN_LEN, "%lu_%d", (unsigned long)time(NULL), rand());
 }
 
 // Autentica al usuario comparando el nombre de usuario y la contraseña
-bool authenticate_user(const char *username, const char *password) {
+bool eauth_authenticate_user(const char *username, const char *password) {
     for (int i = 0; i < count_users; i++) {
         if (strcmp(users[i].username, username) == 0 && strcmp(users[i].password, password) == 0) {
-            generate_session_token(users[i].session_token); // Generar token
+            eauth_generate_session_token(users[i].session_token); // Generar token
             users[i].is_authenticated = true; // Marcar como autenticado
             return true; // Autenticación exitosa
         }
@@ -48,7 +48,7 @@ bool authenticate_user(const char *username, const char *password) {
 }
 
 // Busca un usuario por su nombre de usuario
-User* find_user_by_username(const char *username) {
+User* eauth_find_user_by_username(const char *username) {
     for (int i = 0; i < count_users; i++) {
         if (strcmp(users[i].username, username) == 0) {
             return &users[i]; // Devolver puntero al usuario encontrado
@@ -58,7 +58,7 @@ User* find_user_by_username(const char *username) {
 }
 
 // Obtiene un usuario por su token de sesión
-User* get_user_by_session_token(const char *session_token) {
+User* eauth_get_user_by_session_token(const char *session_token) {
     for (int i = 0; i < count_users; i++) {
         if (strcmp(users[i].session_token, session_token) == 0) {
             return &users[i]; // Devolver puntero al usuario encontrado
@@ -68,8 +68,8 @@ User* get_user_by_session_token(const char *session_token) {
 }
 
 // Cierra sesión del usuario dado un token de sesión
-bool logout_user(const char *session_token) {
-    User *user = get_user_by_session_token(session_token);
+bool eauth_logout_user(const char *session_token) {
+    User *user = eauth_get_user_by_session_token(session_token);
     if (user) {
         user->is_authenticated = false; // Cerrar sesión
         user->session_token[0] = '\0';  // Limpiar el token
@@ -79,7 +79,7 @@ bool logout_user(const char *session_token) {
 }
 
 // Login(GET)
-esp_err_t login_handler(httpd_req_t *req)
+esp_err_t eauth_login_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
     httpd_resp_send(req, _login_asm_start, _login_asm_end - _login_asm_start);
@@ -87,25 +87,25 @@ esp_err_t login_handler(httpd_req_t *req)
 }
 
 // Login (POST)
-esp_err_t login_post_handler(httpd_req_t *req) {
+esp_err_t eauth_login_post_handler(httpd_req_t *req) {
     char *buff = malloc(req->content_len + 1);
     if (buff == NULL) {
         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Request Body too long");
         return ESP_FAIL;
     }
 
-    get_all_data_request(req,buff);
+    eweb_get_all_data_request(req,buff);
 
     char username[MAX_STRING_REQUEST_LEN + 1],password[MAX_STRING_REQUEST_LEN + 1],uri_redirect[MAX_STRING_REQUEST_LEN + 1];
-    get_string_urlencoded_request(buff,"username",username,MAX_STRING_REQUEST_LEN);
-    get_string_urlencoded_request(buff,"password",password,MAX_STRING_REQUEST_LEN);
-    get_string_urlencoded_request(buff,"password",password,MAX_STRING_REQUEST_LEN);
-    get_string_urlencoded_request(req->uri,"uri",uri_redirect,MAX_STRING_REQUEST_LEN);
+    eweb_get_string_urlencoded(buff,"username",username,MAX_STRING_REQUEST_LEN);
+    eweb_get_string_urlencoded(buff,"password",password,MAX_STRING_REQUEST_LEN);
+    eweb_get_string_urlencoded(buff,"password",password,MAX_STRING_REQUEST_LEN);
+    eweb_get_string_urlencoded(req->uri,"uri",uri_redirect,MAX_STRING_REQUEST_LEN);
     
 
     
-    if (authenticate_user(username, password)) {
-        httpd_resp_set_hdr(req, "Set-Cookie", find_user_by_username(username)->session_token); // Establecer cookie
+    if (eauth_authenticate_user(username, password)) {
+        httpd_resp_set_hdr(req, "Set-Cookie", eauth_find_user_by_username(username)->session_token); // Establecer cookie
         httpd_resp_set_status(req, "302 Found");
         if(strlen(uri_redirect))
             httpd_resp_set_hdr(req, "Location", uri_redirect);
@@ -120,10 +120,10 @@ esp_err_t login_post_handler(httpd_req_t *req) {
 }
 
 // Logout (get)
-esp_err_t logout_handler(httpd_req_t *req) {
+esp_err_t eauth_logout_handler(httpd_req_t *req) {
     char session_token[TOKEN_LEN];
     httpd_req_get_hdr_value_str(req, "Cookie", session_token, TOKEN_LEN);
-    if(logout_user(session_token)) {
+    if(eauth_logout_user(session_token)) {
         httpd_resp_set_status(req, "302 Found");
         httpd_resp_set_hdr(req, "Location", "/login.html");
         httpd_resp_send(req, NULL, 0);
@@ -132,21 +132,21 @@ esp_err_t logout_handler(httpd_req_t *req) {
 }
 
 // STATIC HTML(GET)
-esp_err_t static_html_auth_handler(httpd_req_t *req) {
-    if (isAuth(req)){
+esp_err_t eauth_static_html_auth_handler(httpd_req_t *req) {
+    if (eauth_isAuth(req)){
         static_ctx_handler*html = (static_ctx_handler *)req->user_ctx;
         httpd_resp_set_type(req, "text/html");
         httpd_resp_send(req, html->asm_start, html->asm_end - html->asm_start );
     }
     else
-        redirect_to_login(req);
+        eauth_redirect_to_login(req);
     return ESP_OK;
     
 }
 
 // Static  (GET)
-esp_err_t static_auth_handler(httpd_req_t *req) {
-    if (isAuth(req)){
+esp_err_t eauth_static_auth_handler(httpd_req_t *req) {
+    if (eauth_isAuth(req)){
         static_ctx_handler*ctx = (static_ctx_handler *)req->user_ctx;
         httpd_resp_set_type(req, ctx->resp_type);
         httpd_resp_set_hdr(req, "Cache-Control", "public, max-age=86400");
@@ -162,7 +162,7 @@ esp_err_t static_auth_handler(httpd_req_t *req) {
 }
 
 // Error 404
-esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
+esp_err_t eauth_http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
 {
     httpd_resp_set_status(req, "302 Temporary Redirect");
     httpd_resp_set_hdr(req, "Location", redirect_404);
@@ -170,7 +170,7 @@ esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
     return ESP_OK;
 }
 
-void redirect_to_login(httpd_req_t*req){
+void eauth_redirect_to_login(httpd_req_t*req){
     if(req->method == HTTP_GET){
         char redirect[strlen("/login.html") + strlen("?uri=") + strlen(req->uri) + 1];
         httpd_resp_set_status(req, "302 Temporary Redirect");
@@ -186,7 +186,7 @@ void redirect_to_login(httpd_req_t*req){
 }
 
 // Required char* to login start and end EMBED_FILE
-void set_auth_uri_handlers(const char*__login_asm_start,const char*__login_asm_end,const char*__redirect_404){
+void eauth_set_auth_uri(const char*__login_asm_start,const char*__login_asm_end,const char*__redirect_404){
     _login_asm_start = __login_asm_start;
     _login_asm_end = __login_asm_end;
     if (strlen(__redirect_404) < MAX_404_BUFFER_SIZE)
@@ -196,21 +196,21 @@ void set_auth_uri_handlers(const char*__login_asm_start,const char*__login_asm_e
     httpd_uri_t uri;
     uri.uri = "/login.html";
     uri.method = HTTP_GET;
-    uri.handler = login_handler;
+    uri.handler = eauth_login_handler;
     uri.user_ctx = NULL;
     httpd_register_uri_handler(WebServer, &uri);
     
     uri.uri = "/login.html";
     uri.method = HTTP_POST;
-    uri.handler = login_post_handler;
+    uri.handler = eauth_login_post_handler;
     uri.user_ctx = NULL;
     httpd_register_uri_handler(WebServer, &uri);
     
     uri.uri = "/logout";
     uri.method = HTTP_GET;
-    uri.handler = logout_handler;
+    uri.handler = eauth_logout_handler;
     uri.user_ctx = NULL;
     httpd_register_uri_handler(WebServer, &uri);
 
-    httpd_register_err_handler(WebServer, HTTPD_404_NOT_FOUND, http_404_error_handler);
+    httpd_register_err_handler(WebServer, HTTPD_404_NOT_FOUND, eauth_http_404_error_handler);
 }
