@@ -99,15 +99,13 @@ esp_err_t eauth_login_post_handler(httpd_req_t *req) {
     char username[MAX_STRING_REQUEST_LEN + 1],password[MAX_STRING_REQUEST_LEN + 1],uri_redirect[MAX_STRING_REQUEST_LEN + 1];
     eweb_get_string_urlencoded(buff,"username",username,MAX_STRING_REQUEST_LEN);
     eweb_get_string_urlencoded(buff,"password",password,MAX_STRING_REQUEST_LEN);
-    eweb_get_string_urlencoded(buff,"password",password,MAX_STRING_REQUEST_LEN);
-    eweb_get_string_urlencoded(req->uri,"uri",uri_redirect,MAX_STRING_REQUEST_LEN);
-    
-
+    bool uri_redirect_bool = eweb_get_string_urlencoded(req->uri,"uri",uri_redirect,MAX_STRING_REQUEST_LEN);
     
     if (eauth_authenticate_user(username, password)) {
         httpd_resp_set_hdr(req, "Set-Cookie", eauth_find_user_by_username(username)->session_token); // Establecer cookie
         httpd_resp_set_status(req, "302 Found");
-        if(strlen(uri_redirect))
+        
+        if(uri_redirect_bool)
             httpd_resp_set_hdr(req, "Location", uri_redirect);
         else
             httpd_resp_set_hdr(req, "Location", redirect_404);
@@ -164,10 +162,13 @@ esp_err_t eauth_static_auth_handler(httpd_req_t *req) {
 // Error 404
 esp_err_t eauth_http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
 {
-    httpd_resp_set_status(req, "302 Temporary Redirect");
-    httpd_resp_set_hdr(req, "Location", redirect_404);
-    httpd_resp_send(req, "Redirect to the captive portal", HTTPD_RESP_USE_STRLEN);
-    return ESP_OK;
+    if(req->method == HTTP_GET){
+        httpd_resp_set_status(req, "302 Temporary Redirect");
+        httpd_resp_set_hdr(req, "Location", redirect_404);
+        httpd_resp_send(req, "Redirect to the captive portal", HTTPD_RESP_USE_STRLEN);
+        return ESP_OK;
+    }
+    return ESP_FAIL;
 }
 
 void eauth_redirect_to_login(httpd_req_t*req){
