@@ -51,7 +51,7 @@ bool eauth_logout_user(const char *session_token);
 
 void eauth_redirect_to_login(httpd_req_t*req);
 
-void eauth_set_auth_uri(const char *__login_asm_start, const char *__login_asm_end, const char *__redirect_404);
+void eauth_set_login_redirect_uri(const char *__login_asm_start, const char *__login_asm_end, const char *__redirect_404);
 
 esp_err_t eauth_static_html_handler(httpd_req_t *req);
 
