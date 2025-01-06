@@ -187,7 +187,7 @@ void eauth_redirect_to_login(httpd_req_t*req){
 }
 
 // Required char* to login start and end EMBED_FILE
-void eauth_set_login_redirect_uri(const char*__login_asm_start,const char*__login_asm_end,const char*__redirect_404){
+void eauth_set_authentications_uris(const char*__login_asm_start,const char*__login_asm_end,const char*__redirect_404){
     _login_asm_start = __login_asm_start;
     _login_asm_end = __login_asm_end;
     if (strlen(__redirect_404) < MAX_404_BUFFER_SIZE)
