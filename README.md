@@ -53,6 +53,6 @@ void app_main() {
     
 
     eauth_init();
-    eauth_set_login_redirect_uri(login_html_asm_start,login_html_asm_end,"/home.html");
+    eauth_set_authentications_uris(login_html_asm_start,login_html_asm_end,"/home.html");
 }
 ```
