@@ -130,7 +130,7 @@ esp_err_t eauth_logout_handler(httpd_req_t *req) {
 }
 
 // STATIC HTML(GET)
-esp_err_t eauth_static_html_auth_handler(httpd_req_t *req) {
+esp_err_t eauth_static_html_handler(httpd_req_t *req) {
     if (eauth_isAuth(req)){
         static_ctx_handler*html = (static_ctx_handler *)req->user_ctx;
         httpd_resp_set_type(req, "text/html");
@@ -143,7 +143,7 @@ esp_err_t eauth_static_html_auth_handler(httpd_req_t *req) {
 }
 
 // Static  (GET)
-esp_err_t eauth_static_auth_handler(httpd_req_t *req) {
+esp_err_t eauth_static_handler(httpd_req_t *req) {
     if (eauth_isAuth(req)){
         static_ctx_handler*ctx = (static_ctx_handler *)req->user_ctx;
         httpd_resp_set_type(req, ctx->resp_type);

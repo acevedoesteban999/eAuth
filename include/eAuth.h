@@ -53,6 +53,6 @@ void eauth_redirect_to_login(httpd_req_t*req);
 
 void eauth_set_auth_uri(const char *__login_asm_start, const char *__login_asm_end, const char *__redirect_404);
 
-esp_err_t eauth_static_html_auth_handler(httpd_req_t *req);
+esp_err_t eauth_static_html_handler(httpd_req_t *req);
 
-esp_err_t eauth_static_auth_handler(httpd_req_t *req);
+esp_err_t eauth_static_handler(httpd_req_t *req);
