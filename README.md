@@ -45,14 +45,14 @@ uri_ctx_hanlder static_uris[] = {
 
 
 void app_main() {
-    /*eWeb init system
-        uri_ctx_hanlder *uris = static_uris;
-        size_t uri_size = get_uri_handlers();
-        eweb_init(uri_size + AUTH_MAX_URI_SIZE);
-        eweb_set_custom_uris(uris,uri_size);
-    */
+    //eWeb init system
+        //uri_ctx_hanlder *uris = static_uris;
+        //size_t uri_size = get_uri_handlers();
+        eweb_init(uri_size + 1);                        // Necesary Inc 1 for login uri
+        //eweb_set_custom_uris(uris,uri_size);
+    
 
     eauth_init();
-    eauth_set_auth_uri(login_html_asm_start,login_html_asm_end,"/home.html");
+    eauth_set_login_redirect_uri(login_html_asm_start,login_html_asm_end,"/home.html");
 }
 ```
