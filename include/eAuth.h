@@ -22,7 +22,6 @@
 #define EAUTH_HANDLERS_WITH_STATIC(handler_html,handler_statics,login_html_asm_start,login_html_asm_end,login_css_asm_start,login_css_asm_end,login_js_asm_start,login_js_asm_end) \
     {{"/login.html", HTTP_GET , handler_html , NULL}, true, {login_html_asm_start,login_html_asm_end,""}}, \
     {{"/css/login.css", HTTP_GET , handler_statics , NULL}, true, {login_css_asm_start,login_css_asm_end,"text/css"}}, \
-    {{"/js/login.js", HTTP_GET , handler_statics , NULL}, true, {login_js_asm_start,login_js_asm_end,"texr/javascript"}}, \
     {{"/logout", HTTP_GET , eauth_logout_handler , NULL}, false, {}}, \
     {{"/login", HTTP_POST , eauth_login_post_handler , NULL}, false, {}} \
 
