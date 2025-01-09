@@ -9,6 +9,7 @@ This module depends on the following components:
 
 ## How tu Use
 
+TODO
 #### Init
 eAuth depends eWeb , first inicialice like [eWeb init system](https://github.com/acevedoesteban999/eWeb)  
 
@@ -49,10 +50,10 @@ void app_main() {
         //uri_ctx_hanlder *uris = static_uris;
         //size_t uri_size = get_uri_handlers();
         eweb_init(uri_size + 1);                        // Necesary Inc 1 for login uri
-        //eweb_set_custom_uris(uris,uri_size);
+        //eweb_set_uri_hanlders(uris,uri_size);
     
 
     eauth_init();
-    eauth_set_authentications_uris(login_html_asm_start,login_html_asm_end,"/home.html");
+    eauth_set_redirect_404(login_html_asm_start,login_html_asm_end,"/home.html");
 }
 ```

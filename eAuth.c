@@ -186,32 +186,11 @@ void eauth_redirect_to_login(httpd_req_t*req){
     }
 }
 
-// Required char* to login start and end EMBED_FILE
-void eauth_set_authentications_uris(const char*__login_asm_start,const char*__login_asm_end,const char*__redirect_404){
-    _login_asm_start = __login_asm_start;
-    _login_asm_end = __login_asm_end;
+void eauth_set_redirect_404(const char*__redirect_404){
     if (strlen(__redirect_404) < MAX_404_BUFFER_SIZE)
         strcpy(redirect_404,__redirect_404);
     else
         strcpy(redirect_404,"/login.html");
-    httpd_uri_t uri;
-    uri.uri = "/login.html";
-    uri.method = HTTP_GET;
-    uri.handler = eauth_login_handler;
-    uri.user_ctx = NULL;
-    httpd_register_uri_handler(WebServer, &uri);
-    
-    uri.uri = "/login.html";
-    uri.method = HTTP_POST;
-    uri.handler = eauth_login_post_handler;
-    uri.user_ctx = NULL;
-    httpd_register_uri_handler(WebServer, &uri);
-    
-    uri.uri = "/logout";
-    uri.method = HTTP_GET;
-    uri.handler = eauth_logout_handler;
-    uri.user_ctx = NULL;
-    httpd_register_uri_handler(WebServer, &uri);
 
     httpd_register_err_handler(WebServer, HTTPD_404_NOT_FOUND, eauth_http_404_error_handler);
 }

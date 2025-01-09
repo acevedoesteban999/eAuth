@@ -12,8 +12,19 @@
 #define PASSWORD_LEN 20         // Longitud máxima para contraseñas
 #define TOKEN_LEN 64            // Longitud máxima para tokens de sesión
 #define MAX_404_BUFFER_SIZE 20  
-#define AUTH_MAX_URI_SIZE 3
 #define MAX_STRING_REQUEST_LEN 20
+
+#define EAUTH_HANDLERS_WITHOUT_STATIC(handler_html,login_html_asm_start,login_html_asm_end) \
+    {{"/login.html", HTTP_GET , handler_html , NULL}, true, {login_html_asm_start,login_html_asm_end,""}}, \
+    {{"/logout", HTTP_GET , eauth_logout_handler , NULL}, false, {}}, \
+    {{"/login", HTTP_POST , eauth_login_post_handler , NULL}, false, {}}, \
+
+#define EAUTH_HANDLERS_WITH_STATIC(handler_html,handler_statics,login_html_asm_start,login_html_asm_end,login_css_asm_start,login_css_asm_end,login_js_asm_start,login_js_asm_end) \
+    {{"/login.html", HTTP_GET , handler_html , NULL}, true, {login_html_asm_start,login_html_asm_end,""}}, \
+    {{"/login.css", HTTP_GET , handler_statics , NULL}, true, {login_css_asm_start,login_css_asm_end,"text/css"}}, \
+    {{"/login.js", HTTP_GET , handler_statics , NULL}, true, {login_js_asm_start,login_js_asm_end,"texr/javascript"}}, \
+    {{"/logout", HTTP_GET , eauth_logout_handler , NULL}, false, {}}, \
+    {{"/login", HTTP_POST , eauth_login_post_handler , NULL}, false, {}}, \
 
 // Estructura para almacenar información de un usuario
 typedef struct {
@@ -49,9 +60,13 @@ User* eauth_get_user_by_session_token(const char *session_token);
 // Cierra sesión del usuario
 bool eauth_logout_user(const char *session_token);
 
+esp_err_t eauth_login_post_handler(httpd_req_t *req);
+
+esp_err_t eauth_logout_handler(httpd_req_t *req);
+
 void eauth_redirect_to_login(httpd_req_t*req);
 
-void eauth_set_authentications_uris(const char *__login_asm_start, const char *__login_asm_end, const char *__redirect_404);
+void eauth_set_redirect_404(const char *__redirect_404);
 
 esp_err_t eauth_static_html_handler(httpd_req_t *req);
 
