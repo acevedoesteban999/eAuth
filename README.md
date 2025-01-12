@@ -57,3 +57,43 @@ void app_main() {
     eauth_set_redirect_404(login_html_asm_start,login_html_asm_end,"/home.html");
 }
 ```
+
+## Example Login.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Login</title>
+        <link rel="stylesheet" href="./css/login.css">
+        <link rel="icon" href="data:,">
+    </head>
+    <body>
+        <div class="login-container">
+            <form action="./login" method="POST" class="login-form">
+                <div style="text-align: end;">
+                    <h6 style="margin: 0;">Login Page</h6>
+                </div>
+                <h2>Login Page</h2>
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <input type="hidden" name="uri" id="inputURI">
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </body>
+    <script>
+        document.addEventListener("DOMContentLoaded",()=>{
+            inputURI = document.getElementById("inputURI").value = new URLSearchParams(window.location.search).get("uri");;
+        })    
+    </script>
+</html>
+```
