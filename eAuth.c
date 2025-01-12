@@ -99,7 +99,7 @@ esp_err_t eauth_login_post_handler(httpd_req_t *req) {
     char username[MAX_STRING_REQUEST_LEN + 1],password[MAX_STRING_REQUEST_LEN + 1],uri_redirect[MAX_STRING_REQUEST_LEN + 1];
     eweb_get_string_urlencoded(buff,"username",username,MAX_STRING_REQUEST_LEN);
     eweb_get_string_urlencoded(buff,"password",password,MAX_STRING_REQUEST_LEN);
-    bool uri_redirect_bool = eweb_get_string_urlencoded(req->uri,"uri",uri_redirect,MAX_STRING_REQUEST_LEN);
+    bool uri_redirect_bool = eweb_get_string_urlencoded(buff,"uri",uri_redirect,MAX_STRING_REQUEST_LEN);
     
     if (eauth_authenticate_user(username, password)) {
         httpd_resp_set_hdr(req, "Set-Cookie", eauth_find_user_by_username(username)->session_token); // Establecer cookie
