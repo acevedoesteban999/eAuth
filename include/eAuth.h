@@ -14,14 +14,14 @@
 #define MAX_404_BUFFER_SIZE 20  
 #define MAX_STRING_REQUEST_LEN 20
 
-#define EAUTH_HANDLERS_WITHOUT_STATIC(handler_html,login_html_asm_start,login_html_asm_end) \
-    {{"/login.html", HTTP_GET , handler_html , NULL}, true, {login_html_asm_start,login_html_asm_end,"",NULL}}, \
+#define EAUTH_HANDLERS_WITHOUT_STATIC(login_html_asm_start,login_html_asm_end) \
+    {{"/login.html", HTTP_GET , eauth_login_handler , NULL}, true, {login_html_asm_start,login_html_asm_end,"",NULL}}, \
     {{"/logout", HTTP_GET , eauth_logout_handler , NULL}, false, {}}, \
     {{"/login", HTTP_POST , eauth_login_post_handler , NULL}, false, {}} \
 
-#define EAUTH_HANDLERS_WITH_STATIC(handler_html,handler_statics,login_html_asm_start,login_html_asm_end,login_css_asm_start,login_css_asm_end) \
-    {{"/login.html", HTTP_GET , handler_html , NULL}, true, {login_html_asm_start,login_html_asm_end,"",NULL}}, \
-    {{"/css/login.css", HTTP_GET , handler_statics , NULL}, true, {login_css_asm_start,login_css_asm_end,"text/css",NULL}}, \
+#define EAUTH_HANDLERS_WITH_STATIC(login_html_asm_start,login_html_asm_end,login_css_asm_start,login_css_asm_end) \
+    {{"/login.html", HTTP_GET , eauth_login_handler , NULL}, true, {login_html_asm_start,login_html_asm_end,"",NULL}}, \
+    {{"/css/login.css", HTTP_GET , eweb_static_handler , NULL}, true, {login_css_asm_start,login_css_asm_end,"text/css",NULL}}, \
     {{"/logout", HTTP_GET , eauth_logout_handler , NULL}, false, {}}, \
     {{"/login", HTTP_POST , eauth_login_post_handler , NULL}, false, {}} \
 
@@ -58,6 +58,8 @@ User* eauth_get_user_by_session_token(const char *session_token);
 
 // Cierra sesión del usuario
 bool eauth_logout_user(const char *session_token);
+
+esp_err_t eauth_login_handler(httpd_req_t *req);
 
 esp_err_t eauth_login_post_handler(httpd_req_t *req);
 

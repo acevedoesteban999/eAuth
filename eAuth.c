@@ -4,9 +4,6 @@
 User users[MAX_USERS];         // Declaración del array de usuarios
 unsigned int count_users=0;
 char redirect_404[MAX_404_BUFFER_SIZE];
-const char* _login_asm_start = NULL;
-const char* _login_asm_end = NULL;
-
 // Inicializa los usuarios con un usuario predeterminado (admin)
 void eauth_init() {
     //estore_init();
@@ -71,47 +68,78 @@ User* eauth_get_user_by_session_token(const char *session_token) {
 bool eauth_logout_user(const char *session_token) {
     User *user = eauth_get_user_by_session_token(session_token);
     if (user) {
-        user->is_authenticated = false; // Cerrar sesión
-        user->session_token[0] = '\0';  // Limpiar el token
-        return true; // Cierre de sesión exitoso
+        user->is_authenticated = false;
+        user->session_token[0] = '\0';  
+        return true;
     }
-    return false; // Falló el cierre de sesión
+    return false;
 }
 
 // Login(GET)
 esp_err_t eauth_login_handler(httpd_req_t *req)
 {
-    httpd_resp_set_type(req, "text/html");
-    httpd_resp_send(req, _login_asm_start, _login_asm_end - _login_asm_start);
+    if (!eauth_isAuth(req))
+        return eweb_static_html_handler(req);
+    else{
+        httpd_resp_set_status(req, "302 Found");
+        httpd_resp_set_hdr(req, "Location", redirect_404);
+        httpd_resp_send(req, NULL, 0);
+    }
     return ESP_OK;
+}
+
+void eauth_replace_percent_2F(char *str) {
+    char *pos = str;
+    char *tmp;
+    while ((pos = strstr(pos, "%2F")) != NULL) {
+        tmp = pos;
+        
+        memmove(tmp + 1, tmp + 3, strlen(tmp + 3) + 1);
+        *tmp = '/';
+        
+        pos = tmp + 1;
+    }
 }
 
 // Login (POST)
 esp_err_t eauth_login_post_handler(httpd_req_t *req) {
+    char uri_redirect[MAX_STRING_REQUEST_LEN + 1];
     char *buff = malloc(req->content_len + 1);
     if (buff == NULL) {
         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Request Body too long");
         return ESP_FAIL;
     }
-
     eweb_get_all_data_request(req,buff);
-
-    char username[MAX_STRING_REQUEST_LEN + 1],password[MAX_STRING_REQUEST_LEN + 1],uri_redirect[MAX_STRING_REQUEST_LEN + 1];
-    eweb_get_string_urlencoded(buff,"username",username,MAX_STRING_REQUEST_LEN);
-    eweb_get_string_urlencoded(buff,"password",password,MAX_STRING_REQUEST_LEN);
+    eauth_replace_percent_2F(buff);
     bool uri_redirect_bool = eweb_get_string_urlencoded(buff,"uri",uri_redirect,MAX_STRING_REQUEST_LEN);
-    
-    if (eauth_authenticate_user(username, password)) {
-        httpd_resp_set_hdr(req, "Set-Cookie", eauth_find_user_by_username(username)->session_token); // Establecer cookie
-        httpd_resp_set_status(req, "302 Found");
+
+    if(! eauth_isAuth(req)){
+        char username[MAX_STRING_REQUEST_LEN + 1];
+        char password[MAX_STRING_REQUEST_LEN + 1];
         
+        eweb_get_string_urlencoded(buff,"username",username,MAX_STRING_REQUEST_LEN);
+        eweb_get_string_urlencoded(buff,"password",password,MAX_STRING_REQUEST_LEN);
+        
+        if (eauth_authenticate_user(username, password)) {
+            httpd_resp_set_hdr(req, "Set-Cookie", eauth_find_user_by_username(username)->session_token); // Establecer cookie
+            httpd_resp_set_status(req, "302 Found");
+            if(uri_redirect_bool)
+                httpd_resp_set_hdr(req, "Location", uri_redirect);
+            else
+                httpd_resp_set_hdr(req, "Location", redirect_404);
+            httpd_resp_send(req, NULL, 0);
+        } 
+        else 
+            httpd_resp_send(req, "Authentication Failed", HTTPD_RESP_USE_STRLEN);
+    }
+    else{
+        httpd_resp_set_status(req, "302 Found");
         if(uri_redirect_bool)
             httpd_resp_set_hdr(req, "Location", uri_redirect);
         else
             httpd_resp_set_hdr(req, "Location", redirect_404);
+
         httpd_resp_send(req, NULL, 0);
-    } else {
-        httpd_resp_send(req, "Authentication Failed", HTTPD_RESP_USE_STRLEN);
     }
     free(buff);
     return ESP_OK;
