@@ -194,3 +194,15 @@ void eauth_set_redirect_404(const char*__redirect_404){
 
     httpd_register_err_handler(WebServer, HTTPD_404_NOT_FOUND, eauth_http_404_error_handler);
 }
+
+esp_err_t eauth_condicional_function(httpd_req_t *req){
+    if (eauth_isAuth(req)){
+        return eweb_call_condicional_function(req);
+    }
+    else{
+        httpd_resp_set_status(req, "401 Unauthorized");
+        httpd_resp_set_hdr(req, "Content-Type", "text");
+        httpd_resp_send(req, "Unauthorized", HTTPD_RESP_USE_STRLEN);
+    }
+    return ESP_OK;
+}
