@@ -159,30 +159,22 @@ esp_err_t eauth_logout_handler(httpd_req_t *req) {
 
 // STATIC HTML(GET)
 esp_err_t eauth_static_html_handler(httpd_req_t *req) {
-    if (eauth_isAuth(req)){
-        static_ctx_handler*html = (static_ctx_handler *)req->user_ctx;
-        httpd_resp_set_type(req, "text/html");
-        httpd_resp_send(req, html->asm_start, html->asm_end - html->asm_start );
-    }
-    else
-        eauth_redirect_to_login(req);
+    if (eauth_isAuth(req))
+        return eweb_static_html_handler(req);
+
+    eauth_redirect_to_login(req);
     return ESP_OK;
     
 }
 
 // Static  (GET)
 esp_err_t eauth_static_handler(httpd_req_t *req) {
-    if (eauth_isAuth(req)){
-        static_ctx_handler*ctx = (static_ctx_handler *)req->user_ctx;
-        httpd_resp_set_type(req, ctx->resp_type);
-        httpd_resp_set_hdr(req, "Cache-Control", "public, max-age=86400");
-        httpd_resp_send(req, ctx->asm_start, ctx->asm_end - ctx->asm_start );
-    }
-    else{
-        httpd_resp_set_status(req, "401 Unauthorized");
-        httpd_resp_set_hdr(req, "Content-Type", "text");
-        httpd_resp_send(req, "Unauthorized", HTTPD_RESP_USE_STRLEN);
-    }
+    if (eauth_isAuth(req))
+        return eweb_static_handler(req);
+    
+    httpd_resp_set_status(req, "401 Unauthorized");
+    httpd_resp_set_hdr(req, "Content-Type", "text");
+    httpd_resp_send(req, "Unauthorized", HTTPD_RESP_USE_STRLEN);
     return ESP_OK;
     
 }
