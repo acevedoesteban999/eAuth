@@ -79,7 +79,7 @@ bool eauth_logout_user(const char *session_token) {
 esp_err_t eauth_login_handler(httpd_req_t *req)
 {
     if (!eauth_isAuth(req))
-        return eweb_static_min_html_handler(req);
+        return eweb_static_html_handler(req);
     else{
         httpd_resp_set_status(req, "302 Found");
         httpd_resp_set_hdr(req, "Location", redirect_404);
@@ -160,7 +160,7 @@ esp_err_t eauth_logout_handler(httpd_req_t *req) {
 // STATIC HTML(GET)
 esp_err_t eauth_static_min_html_handler(httpd_req_t *req) {
     if (eauth_isAuth(req))
-        return eweb_static_min_html_handler(req);
+        return eweb_static_html_handler(req);
 
     eauth_redirect_to_login(req);
     return ESP_OK;
