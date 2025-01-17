@@ -151,7 +151,7 @@ esp_err_t eauth_logout_handler(httpd_req_t *req) {
     httpd_req_get_hdr_value_str(req, "Cookie", session_token, TOKEN_LEN);
     if(eauth_logout_user(session_token)) {
         httpd_resp_set_status(req, "302 Found");
-        httpd_resp_set_hdr(req, "Location", "/login.html");
+        httpd_resp_set_hdr(req, "Location", "/login.min.html");
         httpd_resp_send(req, NULL, 0);
     }
     return ESP_OK;
@@ -193,9 +193,9 @@ esp_err_t eauth_http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
 
 void eauth_redirect_to_login(httpd_req_t*req){
     if(req->method == HTTP_GET){
-        char redirect[strlen("/login.html") + strlen("?uri=") + strlen(req->uri) + 1];
+        char redirect[strlen("/login.min.html") + strlen("?uri=") + strlen(req->uri) + 1];
         httpd_resp_set_status(req, "302 Temporary Redirect");
-        strcpy(redirect,"/login.html?uri=");
+        strcpy(redirect,"/login.min.html?uri=");
         strcat(redirect,req->uri);
         httpd_resp_set_hdr(req, "Location", redirect);
         httpd_resp_send(req, NULL, 0);              
@@ -210,7 +210,7 @@ void eauth_set_redirect_404(const char*__redirect_404){
     if (strlen(__redirect_404) < MAX_404_BUFFER_SIZE)
         strcpy(redirect_404,__redirect_404);
     else
-        strcpy(redirect_404,"/login.html");
+        strcpy(redirect_404,"/login.min.html");
 
     httpd_register_err_handler(WebServer, HTTPD_404_NOT_FOUND, eauth_http_404_error_handler);
 }

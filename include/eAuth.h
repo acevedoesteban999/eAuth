@@ -15,13 +15,13 @@
 #define MAX_STRING_REQUEST_LEN 20
 
 #define EAUTH_HANDLERS_WITHOUT_STATIC(login_html_asm_start,login_html_asm_end) \
-    {{"/login.html", HTTP_GET , eauth_login_handler , NULL}, true, {login_html_asm_start,login_html_asm_end,"",NULL,NULL}}, \
+    {{"/login.min.html", HTTP_GET , eauth_login_handler , NULL}, true, {login_html_asm_start,login_html_asm_end,"",NULL,NULL}}, \
     {{"/logout", HTTP_GET , eauth_logout_handler , NULL}, false, {}}, \
     {{"/login", HTTP_POST , eauth_login_post_handler , NULL}, false, {}} \
 
 #define EAUTH_HANDLERS_WITH_STATIC(login_html_asm_start,login_html_asm_end,login_css_asm_start,login_css_asm_end) \
-    {{"/login.html", HTTP_GET , eauth_login_handler , NULL}, true, {login_html_asm_start,login_html_asm_end,"",NULL,NULL}}, \
-    {{"/css/login.css", HTTP_GET , eweb_static_handler , NULL}, true, {login_css_asm_start,login_css_asm_end,"text/css",NULL,NULL}}, \
+    {{"/login.min.html", HTTP_GET , eauth_login_handler , NULL}, true, {login_html_asm_start,login_html_asm_end,"",NULL,NULL}}, \
+    {{"/css/login.min.css", HTTP_GET , eweb_static_handler , NULL}, true, {login_css_asm_start,login_css_asm_end,"text/css",NULL,NULL}}, \
     {{"/logout", HTTP_GET , eauth_logout_handler , NULL}, false, {}}, \
     {{"/login", HTTP_POST , eauth_login_post_handler , NULL}, false, {}} \
 
