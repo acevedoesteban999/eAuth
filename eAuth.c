@@ -158,7 +158,7 @@ esp_err_t eauth_logout_handler(httpd_req_t *req) {
 }
 
 // STATIC HTML(GET)
-esp_err_t eauth_static_min_html_handler(httpd_req_t *req) {
+esp_err_t eauth_static_html_handler(httpd_req_t *req) {
     if (eauth_isAuth(req))
         return eweb_static_html_handler(req);
 
