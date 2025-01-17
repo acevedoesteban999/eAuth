@@ -15,13 +15,13 @@
 #define MAX_STRING_REQUEST_LEN 20
 
 #define EAUTH_HANDLERS_WITHOUT_STATIC(login_html_asm_start,login_html_asm_end) \
-    {{"/login.html", HTTP_GET , eauth_login_handler , NULL}, true, {login_html_asm_start,login_html_asm_end,"",NULL}}, \
+    {{"/login.html", HTTP_GET , eauth_login_handler , NULL}, true, {login_html_asm_start,login_html_asm_end,"",NULL,NULL}}, \
     {{"/logout", HTTP_GET , eauth_logout_handler , NULL}, false, {}}, \
     {{"/login", HTTP_POST , eauth_login_post_handler , NULL}, false, {}} \
 
 #define EAUTH_HANDLERS_WITH_STATIC(login_html_asm_start,login_html_asm_end,login_css_asm_start,login_css_asm_end) \
-    {{"/login.html", HTTP_GET , eauth_login_handler , NULL}, true, {login_html_asm_start,login_html_asm_end,"",NULL}}, \
-    {{"/css/login.css", HTTP_GET , eweb_static_handler , NULL}, true, {login_css_asm_start,login_css_asm_end,"text/css",NULL}}, \
+    {{"/login.html", HTTP_GET , eauth_login_handler , NULL}, true, {login_html_asm_start,login_html_asm_end,"",NULL,NULL}}, \
+    {{"/css/login.css", HTTP_GET , eweb_static_handler , NULL}, true, {login_css_asm_start,login_css_asm_end,"text/css",NULL,NULL}}, \
     {{"/logout", HTTP_GET , eauth_logout_handler , NULL}, false, {}}, \
     {{"/login", HTTP_POST , eauth_login_post_handler , NULL}, false, {}} \
 
@@ -69,7 +69,9 @@ void eauth_redirect_to_login(httpd_req_t*req);
 
 void eauth_set_redirect_404(const char *__redirect_404);
 
-esp_err_t eauth_condicional_function(httpd_req_t *req);
+esp_err_t eauth_conditional_function(httpd_req_t *req);
+
+esp_err_t eauth_excecution_function(httpd_req_t *req);
 
 esp_err_t eauth_static_html_handler(httpd_req_t *req);
 
