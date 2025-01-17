@@ -21,24 +21,24 @@ uri_handlers.c
 ```c
 #include "eWeb.h"
 
-extern const char login_html_asm_start[] asm("_binary_login_css_start");
-extern const char login_html_asm_end[] asm("_binary_login_css_end");
+extern const char login_min_html_asm_start[] asm("_binary_login_min_css_start");
+extern const char login_min_html_asm_end[] asm("_binary_login_min_css_end");
 
-extern const char home_html_asm_start[] asm("_binary_home_css_start");
-extern const char home_html_asm_end[] asm("_binary_home_css_end");
+extern const char home_min_html_asm_start[] asm("_binary_home_min_css_start");
+extern const char home_min_html_asm_end[] asm("_binary_home_min_css_end");
 
-extern const char home_css_asm_start[] asm("_binary_home_css_start");
-extern const char home_css_asm_end[] asm("_binary_home_css_end");
+extern const char home_min_css_asm_start[] asm("_binary_home_min_css_start");
+extern const char home_min_css_asm_end[] asm("_binary_home_min_css_end");
 
 uri_ctx_hanlder static_uris[] = {
     /*eWeb init system static uris
-    {{"/example.min.html", HTTP_GET, eweb_static_html_handler, NULL}, true, {example_html_asm_start,example_html_asm_end,"text/html"}},
-    {{"/example.min.js", HTTP_GET, eweb_static_handler, NULL}, true, {example_html_asm_start,example_html_asm_end,"text/javascript"}},
-    {{"/example.min.css", HTTP_GET, eweb_static_handler, NULL}, true, {example_html_asm_start,example_html_asm_end,"text/css"}},
+    {{"/example.min.html", HTTP_GET, eweb_static_min_html_handler, NULL}, true, {example_min_html_asm_start,example_min_html_asm_end,"text/html"}},
+    {{"/example.min.js", HTTP_GET, eweb_static_handler, NULL}, true, {example_min_html_asm_start,example_min_html_asm_end,"text/javascript"}},
+    {{"/example.min.css", HTTP_GET, eweb_static_handler, NULL}, true, {example_min_html_asm_start,example_min_html_asm_end,"text/css"}},
     */
 
-    {{"/home.min.html", HTTP_GET, eaut_static_html_handler, NULL}, true, {home_html_asm_start,home_html_asm_end,"text/html"}},
-    {{"/home.min.css", HTTP_GET, eauth_static_handler, NULL}, true, {home_css_asm_start,home_css_asm_end,"text/css"}},
+    {{"/home.min.html", HTTP_GET, eaut_static_min_html_handler, NULL}, true, {home_min_html_asm_start,home_min_html_asm_end,"text/html"}},
+    {{"/home.min.css", HTTP_GET, eauth_static_handler, NULL}, true, {home_min_css_asm_start,home_min_css_asm_end,"text/css"}},
 
 };
 
@@ -58,7 +58,7 @@ void app_main() {
 
 
     eauth_init();
-    eauth_set_redirect_404(login_html_asm_start,login_html_asm_end,"/home.min.html");
+    eauth_set_redirect_404(login_min_html_asm_start,login_min_html_asm_end,"/home.min.html");
 }
 ```
 
