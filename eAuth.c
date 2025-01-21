@@ -215,12 +215,12 @@ void eauth_set_redirect_404(const char*__redirect_404){
     httpd_register_err_handler(WebServer, HTTPD_404_NOT_FOUND, eauth_http_404_error_handler);
 }
 
-esp_err_t eauth_conditional_function(httpd_req_t *req){
+bool eauth_conditional_function(httpd_req_t *req){
     if (eauth_isAuth(req))
         return eweb_check_condicional_function(req);
     else
         eauth_redirect_to_login(req);
-    return ESP_OK;
+    return false;
 }
 
 esp_err_t eauth_excecution_function(httpd_req_t *req){

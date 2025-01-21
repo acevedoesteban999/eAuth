@@ -69,7 +69,7 @@ void eauth_redirect_to_login(httpd_req_t*req);
 
 void eauth_set_redirect_404(const char *__redirect_404);
 
-esp_err_t eauth_conditional_function(httpd_req_t *req);
+bool eauth_conditional_function(httpd_req_t *req);
 
 esp_err_t eauth_excecution_function(httpd_req_t *req);
 
