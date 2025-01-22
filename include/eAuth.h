@@ -14,12 +14,7 @@
 #define MAX_404_BUFFER_SIZE 20  
 #define MAX_STRING_REQUEST_LEN 20
 
-#define EAUTH_HANDLERS_WITHOUT_STATIC(login_min_html_asm_start,login_min_html_asm_end) \
-    {{"/login.min.html", HTTP_GET , eauth_login_handler , NULL}, true, {login_min_html_asm_start,login_min_html_asm_end,"",NULL,NULL}}, \
-    {{"/logout", HTTP_GET , eauth_logout_handler , NULL}, false, {}}, \
-    {{"/login", HTTP_POST , eauth_login_post_handler , NULL}, false, {}} \
-
-#define EAUTH_HANDLERS_WITH_STATIC(login_min_html_asm_start,login_min_html_asm_end) \
+#define EAUTH_HANDLERS(login_min_html_asm_start,login_min_html_asm_end) \
     {{"/login.min.html", HTTP_GET , eauth_login_handler , NULL}, true, {login_min_html_asm_start,login_min_html_asm_end,"",NULL,NULL}}, \
     {{"/logout", HTTP_GET , eauth_logout_handler , NULL}, false, {}}, \
     {{"/login", HTTP_POST , eauth_login_post_handler , NULL}, false, {}} \
