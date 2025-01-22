@@ -19,9 +19,8 @@
     {{"/logout", HTTP_GET , eauth_logout_handler , NULL}, false, {}}, \
     {{"/login", HTTP_POST , eauth_login_post_handler , NULL}, false, {}} \
 
-#define EAUTH_HANDLERS_WITH_STATIC(login_min_html_asm_start,login_min_html_asm_end,login_min_css_asm_start,login_min_css_asm_end) \
+#define EAUTH_HANDLERS_WITH_STATIC(login_min_html_asm_start,login_min_html_asm_end) \
     {{"/login.min.html", HTTP_GET , eauth_login_handler , NULL}, true, {login_min_html_asm_start,login_min_html_asm_end,"",NULL,NULL}}, \
-    {{"/css/login.min.css", HTTP_GET , eweb_static_handler , NULL}, true, {login_min_css_asm_start,login_min_css_asm_end,"text/css",NULL,NULL}}, \
     {{"/logout", HTTP_GET , eauth_logout_handler , NULL}, false, {}}, \
     {{"/login", HTTP_POST , eauth_login_post_handler , NULL}, false, {}} \
 
