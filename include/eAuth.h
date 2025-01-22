@@ -24,7 +24,7 @@
     {{"/logout", HTTP_GET , eauth_logout_handler , NULL}, false, {}}, \
     {{"/login", HTTP_POST , eauth_login_post_handler , NULL}, false, {}} \
 
-// Estructura para almacenar información de un usuario
+// eSTRuctura para almacenar información de un usuario
 typedef struct {
     char username[USERNAME_LEN];      // Nombre de usuario
     char password[PASSWORD_LEN];      // Contraseña

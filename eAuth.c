@@ -103,28 +103,36 @@ void eauth_replace_percent_2F(char *str) {
 
 // Login (POST)
 esp_err_t eauth_login_post_handler(httpd_req_t *req) {
-    char uri_redirect[MAX_STRING_REQUEST_LEN + 1];
-    char *buff = malloc(req->content_len + 1);
-    if (buff == NULL) {
-        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Request Body too long");
-        return ESP_FAIL;
-    }
-    eweb_get_all_data_request(req,buff);
-    eauth_replace_percent_2F(buff);
-    bool uri_redirect_bool = eweb_get_string_urlencoded(buff,"uri",uri_redirect,MAX_STRING_REQUEST_LEN);
+    eSTR str,uri_redirect_str;
+    ESTR_MULTIPLE_INIT(
+        &str,
+        &uri_redirect_str
+    );
+    
+    eFree efree;
+    efree_init(&efree);
+    EFREE_MULTIPLE_PUSH(&efree,estr_free,
+        &str,
+        &uri_redirect_str
+    );
+    
+    estr_prepare_str(&uri_redirect_str,MAX_STRING_REQUEST_LEN);
+    EWEB_GET_DATA_REQUEST_STR(req,&str,&efree);
+    eauth_replace_percent_2F(str.ptr_char);
+    bool uri_redirect_bool = eweb_get_string_urlencoded(str.ptr_char,"uri",uri_redirect_str.ptr_char,MAX_STRING_REQUEST_LEN);
 
     if(! eauth_isAuth(req)){
         char username[MAX_STRING_REQUEST_LEN + 1];
         char password[MAX_STRING_REQUEST_LEN + 1];
         
-        eweb_get_string_urlencoded(buff,"username",username,MAX_STRING_REQUEST_LEN);
-        eweb_get_string_urlencoded(buff,"password",password,MAX_STRING_REQUEST_LEN);
+        eweb_get_string_urlencoded(str.ptr_char,"username",username,MAX_STRING_REQUEST_LEN);
+        eweb_get_string_urlencoded(str.ptr_char,"password",password,MAX_STRING_REQUEST_LEN);
         
         if (eauth_authenticate_user(username, password)) {
             httpd_resp_set_hdr(req, "Set-Cookie", eauth_find_user_by_username(username)->session_token); // Establecer cookie
             httpd_resp_set_status(req, "302 Found");
             if(uri_redirect_bool)
-                httpd_resp_set_hdr(req, "Location", uri_redirect);
+                httpd_resp_set_hdr(req, "Location", uri_redirect_str.ptr_char);
             else
                 httpd_resp_set_hdr(req, "Location", redirect_404);
             httpd_resp_send(req, NULL, 0);
@@ -135,13 +143,13 @@ esp_err_t eauth_login_post_handler(httpd_req_t *req) {
     else{
         httpd_resp_set_status(req, "302 Found");
         if(uri_redirect_bool)
-            httpd_resp_set_hdr(req, "Location", uri_redirect);
+            httpd_resp_set_hdr(req, "Location", uri_redirect_str.ptr_char);
         else
             httpd_resp_set_hdr(req, "Location", redirect_404);
 
         httpd_resp_send(req, NULL, 0);
     }
-    free(buff);
+    efree_free(&efree);
     return ESP_OK;
 }
 
