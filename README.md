@@ -10,11 +10,7 @@ This module depends on the following components:
 
 ## How tu Use
 
-TODO
-
-#### Init
-
-eAuth depends eWeb , first inicialice like [eWeb init system](https://github.com/acevedoesteban999/eWeb)
+#### Init Handlers
 
 uri_handlers.c
 
@@ -30,8 +26,11 @@ extern const char home_min_html_asm_end[] asm("_binary_home_min_css_end");
 extern const char home_min_css_asm_start[] asm("_binary_home_min_css_start");
 extern const char home_min_css_asm_end[] asm("_binary_home_min_css_end");
 
-uri_ctx_hanlder static_uris[] = {
-    /*eWeb init system static uris
+extern const char home_min_js_asm_start[] asm("_binary_home_min_js_start");
+extern const char home_min_js_asm_end[] asm("_binary_home_min_js_end");
+
+uri_ctx_hanlder STATIC_URIS[] = {
+    /*eWeb exampleinit system static uris
     {{"/example.min.html", HTTP_GET, eweb_static_html_handler, NULL}, true, {example_min_html_asm_start,example_min_html_asm_end,"text/html"}},
     {{"/example.min.js", HTTP_GET, eweb_static_handler, NULL}, true, {example_min_html_asm_start,example_min_html_asm_end,"text/javascript"}},
     {{"/example.min.css", HTTP_GET, eweb_static_handler, NULL}, true, {example_min_html_asm_start,example_min_html_asm_end,"text/css"}},
@@ -39,10 +38,15 @@ uri_ctx_hanlder static_uris[] = {
 
     {{"/home.min.html", HTTP_GET, eaut_static_min_html_handler, NULL}, true, {home_min_html_asm_start,home_min_html_asm_end,"text/html"}},
     {{"/home.min.css", HTTP_GET, eauth_static_handler, NULL}, true, {home_min_css_asm_start,home_min_css_asm_end,"text/css"}},
+    {{"/home.min.js", HTTP_GET, eauth_static_handler, NULL}, true, {home_min_js_asm_start,home_js_css_asm_end,"text/javascript"}},
 
 };
 
+const int STATIC_URIS_LEN = sizeof(STATIC_URIS)/sizeof(uri_ctx_hanlder);
+
 ```
+
+main.c
 
 ```c
 #include "eAuth.h"
@@ -50,18 +54,36 @@ uri_ctx_hanlder static_uris[] = {
 
 
 void app_main() {
-    //eWeb init system
-        //uri_ctx_hanlder *uris = static_uris;
-        //size_t uri_size = get_uri_handlers();
-        eweb_init(uri_size + 1);                        // Necesary Inc 1 for login uri
-        //eweb_set_uri_hanlders(uris,uri_size);
-
-
     eauth_init();
-    eauth_set_redirect_404(login_min_html_asm_start,login_min_html_asm_end,"/home.min.html");
+    eweb_preapare_uri_hanlders(STATIC_URIS,STATIC_URIS_LEN);
+    eweb_init(STATIC_URIS_LEN);
+    eweb_set_uri_hanlders(STATIC_URIS,STATIC_URIS_LEN);
+    eauth_set_redirect_404("/home.min.html"); 
 }
 ```
 
+CMakeLists.txt
+
+``` CMake
+idf_component_register(
+    SRCS 
+        "main.c"
+        "uri_handlers.c"
+        
+    INCLUDE_DIRS 
+        "include"
+        
+    EMBED_FILES 
+        "src/home.min.html" 
+        "src/login.min.html"
+        
+        "src/css/home.min.css" 
+        "src/js/home.min.js"
+    
+    REQUIRES  
+        eAuth
+)
+```
 ## Example Login.min.html
 
 ```html
