@@ -4,8 +4,6 @@ The eAuth module is an implementation for handling user authentication on the ES
 
 ## Dependencies
 
-This module depends on the following components:
-
 - [eWeb](https://github.com/acevedoesteban999/eWeb)
 
 ## How tu Use
@@ -84,6 +82,12 @@ idf_component_register(
         eAuth
 )
 ```
+
+
+
+
+
+
 ## Example Login.min.html
 
 ```html
