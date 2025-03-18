@@ -53,7 +53,6 @@ main.c
 
 void app_main() {
     eauth_init();
-    eweb_preapare_uri_hanlders(STATIC_URIS,STATIC_URIS_LEN);
     eweb_init(STATIC_URIS_LEN);
     eweb_set_uri_hanlders(STATIC_URIS,STATIC_URIS_LEN);
     eauth_set_redirect_404("/home.min.html"); 
