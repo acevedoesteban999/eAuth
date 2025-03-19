@@ -175,11 +175,34 @@ esp_err_t eauth_static_html_handler(httpd_req_t *req) {
     
 }
 
+// STATIC JS(GET)
+esp_err_t eauth_static_js_handler(httpd_req_t *req) {
+    if (eauth_isAuth(req))
+        return eweb_static_js_handler(req);
+
+    eauth_redirect_to_login(req);
+    return ESP_OK;
+    
+}
+
+// STATIC CSS(GET)
+esp_err_t eauth_static_css_handler(httpd_req_t *req) {
+    if (eauth_isAuth(req))
+        return eweb_static_css_handler(req);
+
+    eauth_redirect_to_login(req);
+    return ESP_OK;
+    
+}
+
 // Static  (GET)
 esp_err_t eauth_static_handler(httpd_req_t *req) {
     if (eauth_isAuth(req))
         return eweb_static_handler(req);
-    
+    if (strcmp(req->uri,redirect_404)){
+        eauth_redirect_to_login(req);
+        return ESP_OK;   
+    }
     httpd_resp_set_status(req, "401 Unauthorized");
     httpd_resp_set_hdr(req, "Content-Type", "text");
     httpd_resp_send(req, "Unauthorized", HTTPD_RESP_USE_STRLEN);

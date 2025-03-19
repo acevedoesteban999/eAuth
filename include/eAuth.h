@@ -69,4 +69,8 @@ esp_err_t eauth_excecution_function(httpd_req_t *req);
 
 esp_err_t eauth_static_html_handler(httpd_req_t *req);
 
+esp_err_t eauth_static_js_handler(httpd_req_t *req);
+
+esp_err_t eauth_static_css_handler(httpd_req_t *req);
+
 esp_err_t eauth_static_handler(httpd_req_t *req);
